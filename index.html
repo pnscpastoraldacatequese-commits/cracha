@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crachás</title>
+    <!-- Inclui a biblioteca Tailwind CSS para estilização rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter para toda a página */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            padding: 2rem;
+        }
+
+        /* Define a classe para o crachá com o tamanho exato de 9.5x6.5 cm */
+        .badge {
+            width: 9.5cm;
+            height: 6.5cm;
+            border: 1px solid #000; /* Adiciona a borda */
+            box-sizing: border-box; /* Garante que a borda não aumente o tamanho total */
+        }
+
+        /*
+        * A classe @media print é usada para otimizar o documento para impressão.
+        * Ela remove a cor de fundo e o padding do body para economizar tinta.
+        */
+        @media print {
+            body {
+                background-color: #fff;
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+            /* O container é ajustado para que 6 crachás caibam em uma página A4 */
+            .print-grid {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-content: flex-start;
+                padding: 1cm; /* Margem interna para evitar que os crachás fiquem muito perto da borda */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botão de impressão que não será exibido na versão impressa -->
+    <div class="no-print flex justify-center mb-8">
+        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300">
+            Imprimir Crachás
+        </button>
+    </div>
+
+    <!--
+    * Container principal que organiza os crachás.
+    * Usa grid para uma visualização em colunas e adiciona um espaçamento entre eles.
+    * A classe 'justify-center' centraliza o conteúdo.
+    -->
+    <div class="print-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center items-center">
+
+        <!-- Início da lista de crachás -->
+        <!-- O loop abaixo cria um crachá para cada nome da lista -->
+         <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
+            <!-- Image on the top left -->
+            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
+            <!-- Image on the top right -->
+            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
+            <!-- Central name -->
+            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">Bella Liz</h2>
+        </div>
+        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
+            <!-- Image on the top left -->
+            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
+            <!-- Image on the top right -->
+            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
+            <!-- Central name -->
+            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">Giovana</h2>
+        </div>
+        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
+            <!-- Image on the top left -->
+            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
+            <!-- Image on the top right -->
+            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
+            <!-- Central name -->
+            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">Mateus</h2>
+        </div>
+        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
+            <!-- Image on the top left -->
+            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
+            <!-- Image on the top right -->
+            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
+            <!-- Central name -->
+            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">Melina</h2>
+        </div>
+        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
+            <!-- Image on the top left -->
+            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
+            <!-- Image on the top right -->
+            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
+            <!-- Central name -->
+            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">Ysabela</h2>
+        </div>
+        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
+            <!-- Image on the top left -->
+            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
+            <!-- Image on the top right -->
+            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
+            <!-- Central name -->
+            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">Nome</h2>
+        </div>
+        <!-- Fim da lista de crachás -->
+    </div>
+</body>
+</html>
