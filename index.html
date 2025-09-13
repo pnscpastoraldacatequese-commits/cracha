@@ -16,10 +16,26 @@
             padding: 20px;
             color: #333;
         }
-        .print-btn-container {
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
             margin-bottom: 20px;
         }
-        .print-btn {
+        .controls textarea {
+            width: 80vw;
+            max-width: 600px;
+            height: 80px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
             padding: 10px 20px;
             background-color: #4A90E2;
             color: white;
@@ -28,6 +44,9 @@
             cursor: pointer;
             font-size: 16px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .print-btn-container {
+            margin-bottom: 20px;
         }
         .container {
             width: 21cm; /* A4 width */
@@ -87,7 +106,7 @@
                 padding: 0;
                 display: block;
             }
-            .print-btn-container {
+            .controls, .print-btn-container {
                 display: none;
             }
             .container {
@@ -109,18 +128,30 @@
     </style>
 </head>
 <body>
-
-    <div class="print-btn-container">
-        <button class="print-btn" onclick="window.print()">Imprimir Crachás</button>
+    <div class="controls">
+        <label for="nomesInput">Digite os nomes (separados por vírgula):</label>
+        <textarea id="nomesInput" placeholder="Ex: Nome1, Nome2, Nome3"></textarea>
+        <div class="btn-container">
+            <button class="btn" onclick="gerarCrachas()">Gerar Crachás</button>
+            <button class="btn print-btn" onclick="window.print()">Imprimir Crachás</button>
+        </div>
     </div>
 
     <div class="container">
-        <script>
-            const nomes = [
-                "BELLA LIZ", "GIOVANA", "MATEUS", "MELINA", "YSABELA"
-            ];
+        <!-- Crachás serão gerados aqui -->
+    </div>
 
+    <script>
+        function gerarCrachas() {
+            const nomesInput = document.getElementById('nomesInput').value;
+            const nomes = nomesInput.split(',').map(nome => nome.trim().toUpperCase()).filter(nome => nome.length > 0);
+            
             const crachasContainer = document.querySelector('.container');
+            crachasContainer.innerHTML = ''; // Limpa os crachás existentes
+
+            if (nomes.length === 0) {
+                return;
+            }
 
             nomes.forEach(nome => {
                 const cracha = document.createElement('div');
@@ -151,8 +182,8 @@
                 
                 crachasContainer.appendChild(cracha);
             });
-        </script>
-    </div>
-
+        }
+    </script>
 </body>
 </html>
+```eof
