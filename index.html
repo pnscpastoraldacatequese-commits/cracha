@@ -1,119 +1,158 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crachás</title>
-    <!-- Inclui a biblioteca Tailwind CSS para estilização rápida -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap)" rel="stylesheet">
     <style>
-        /* Define a fonte Inter para toda a página */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            padding: 2rem;
+            background-color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        .print-btn-container {
+            margin-bottom: 20px;
+        }
+        .print-btn {
+            padding: 10px 20px;
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            width: 21cm; /* A4 width */
+            height: 29.7cm; /* A4 height */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: flex-start;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .cracha {
+            width: 9.5cm;
+            height: 6.5cm;
+            border: 1px solid #000;
+            border-radius: 8px;
+            padding: 5px;
+            box-sizing: border-box;
+            margin: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            background-color: #fff;
+        }
+        .image-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 5px 10px;
+        }
+        .logo-paroquia, .logo-nova {
+            height: 30px;
+            width: auto;
+        }
+        .nome {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            padding: 0 5px;
         }
 
-        /* Define a classe para o crachá com o tamanho exato de 9.5x6.5 cm */
-        .badge {
-            width: 9.0cm;
-            height: 6.0cm;
-            border: 1px solid #000; /* Adiciona a borda */
-            box-sizing: border-box; /* Garante que a borda não aumente o tamanho total */
-        }
-
-        /*
-        * A classe @media print é usada para otimizar o documento para impressão.
-        * Ela remove a cor de fundo e o padding do body para economizar tinta.
-        */
+        /* --- Estilos de Impressão --- */
         @media print {
             body {
-                background-color: #fff;
+                background-color: white;
+                margin: 0;
                 padding: 0;
+                display: block;
             }
-            .no-print {
+            .print-btn-container {
                 display: none;
             }
-            /* O container é ajustado para que 6 crachás caibam em uma página A4 */
-            .print-grid {
-                display: flex;
-                flex-wrap: wrap;
+            .container {
+                width: 21cm;
+                height: 29.7cm;
+                box-shadow: none;
                 justify-content: space-between;
-                align-content: flex-start;
-                padding: 1cm; /* Margem interna para evitar que os crachás fiquem muito perto da borda */
+                align-content: space-between;
+                padding: 0;
+            }
+            .cracha {
+                width: 9.5cm;
+                height: 6.5cm;
+                border-color: #000;
+                margin: 0;
+                border-radius: 0;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Botão de impressão que não será exibido na versão impressa -->
-    <div class="no-print flex justify-center mb-8">
-        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300">
-            Imprimir Crachás
-        </button>
+    <div class="print-btn-container">
+        <button class="print-btn" onclick="window.print()">Imprimir Crachás</button>
     </div>
 
-    <!--
-    * Container principal que organiza os crachás.
-    * Usa grid para uma visualização em colunas e adiciona um espaçamento entre eles.
-    * A classe 'justify-center' centraliza o conteúdo.
-    -->
-    <div class="print-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center items-center">
+    <div class="container">
+        <script>
+            const nomes = [
+                "BELLA LIZ", "GIOVANA", "MATEUS", "MELINA", "YSABELA"
+            ];
 
-        <!-- Início da lista de crachás -->
-        <!-- O loop abaixo cria um crachá para cada nome da lista -->
-         <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
-            <!-- Image on the top left -->
-            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
-            <!-- Image on the top right -->
-            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
-            <!-- Central name -->
-            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">RODRIGO</h2>
-        </div>
-        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
-            <!-- Image on the top left -->
-            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
-            <!-- Image on the top right -->
-            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
-            <!-- Central name -->
-            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">SAYONARA</h2>
-        </div>
-        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
-            <!-- Image on the top left -->
-            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
-            <!-- Image on the top right -->
-            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
-            <!-- Central name -->
-            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">THAIS</h2>
-        </div>
-        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
-            <!-- Image on the top left -->
-            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
-            <!-- Image on the top right -->
-            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
-            <!-- Central name -->
-            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">THALITA</h2>
-        </div>
-        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
-            <!-- Image on the top left -->
-            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
-            <!-- Image on the top right -->
-            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
-            <!-- Central name -->
-            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">VINÍCIUS</h2>
-        </div>
-        <div class="badge bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-center text-center relative">
-            <!-- Image on the top left -->
-            <img src="https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&raw=1" alt="Imagem superior esquerda" class="absolute top-2 left-2 w-12 h-12">
-            <!-- Image on the top right -->
-            <img src="https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&raw=1" alt="Imagem superior direita" class="absolute top-2 right-2 w-12 h-12">
-            <!-- Central name -->
-            <h2 class="text-4xl font-bold text-gray-800 break-words leading-tight uppercase">nome</h2>
-        </div>
-        <!-- Fim da lista de crachás -->
+            const crachasContainer = document.querySelector('.container');
+
+            nomes.forEach(nome => {
+                const cracha = document.createElement('div');
+                cracha.className = 'cracha';
+
+                const imagesDiv = document.createElement('div');
+                imagesDiv.className = 'image-container';
+
+                const imgParoquia = document.createElement('img');
+                imgParoquia.src = '[https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&st=736frz0q&dl=0](https://www.dropbox.com/scl/fi/i68jv2aj2pgdngafdp8do/paroquia.png?rlkey=ydndjk81pp0axqtghxng4jfpd&st=736frz0q&dl=0)';
+                imgParoquia.className = 'logo-paroquia';
+                imgParoquia.alt = 'Logo Paróquia';
+
+                const imgNova = document.createElement('img');
+                imgNova.src = '[https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&st=eocvu52o&dl=0](https://www.dropbox.com/scl/fi/g690dwo46pc7grra1qt22/logonova.PNG?rlkey=9kl57542oyezipvcx6nkc0jbd&st=eocvu52o&dl=0)';
+                imgNova.className = 'logo-nova';
+                imgNova.alt = 'Logo Nova';
+
+                imagesDiv.appendChild(imgParoquia);
+                imagesDiv.appendChild(imgNova);
+                
+                const nomeH1 = document.createElement('h1');
+                nomeH1.className = 'nome';
+                nomeH1.textContent = nome;
+
+                cracha.appendChild(imagesDiv);
+                cracha.appendChild(nomeH1);
+                
+                crachasContainer.appendChild(cracha);
+            });
+        </script>
     </div>
+
 </body>
 </html>
-
