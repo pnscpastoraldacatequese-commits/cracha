@@ -32,6 +32,8 @@
         }
         .btn-container {
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 10px;
         }
         .btn {
@@ -43,6 +45,16 @@
             cursor: pointer;
             font-size: 16px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn.secondary {
+            background-color: #f7f7f7;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #008000;
         }
         .print-btn-container {
             margin-bottom: 20px;
@@ -123,7 +135,7 @@
                 margin: 0;
                 border-radius: 0;
             }
-            .cracha:nth-child(6n+7) {
+            .cracha:nth-child(8n+9) {
                 page-break-before: always;
             }
         }
@@ -135,11 +147,15 @@
         <textarea id="inputNomesRaw" placeholder="Ex: Nome Sobrenome, Nome2, Nome3 Sobrenome" rows="5"></textarea>
         <button class="btn" onclick="processarNomes()">Processar Nomes</button>
 
-        <label for="inputNomesProcessados">2. Lista processada (6 por linha):</label>
+        <label for="inputNomesProcessados">2. Lista processada (8 por linha):</label>
         <textarea id="inputNomesProcessados" placeholder="Nomes processados aparecerão aqui..." rows="10" readonly></textarea>
+        <button class="btn secondary" onclick="copiarNomes()">Copiar Lista</button>
+        <p id="status-copy" class="status-message"></p>
 
-        <label for="inputNomesFinal">3. Copie a lista acima, edite se necessário e cole aqui:</label>
+        <label for="inputNomesFinal">3. Cole a lista aqui e edite se necessário:</label>
         <textarea id="inputNomesFinal" placeholder="Nomes finais para geração..." rows="10"></textarea>
+        <button class="btn secondary" onclick="colarNomes()">Colar Lista</button>
+        <p id="status-paste" class="status-message"></p>
 
         <div class="btn-container">
             <button class="btn" onclick="gerarCrachas()">Gerar Crachás</button>
@@ -183,12 +199,33 @@
                 }
             });
 
-            // Formata a lista para exibir 6 nomes por linha
+            // Formata a lista para exibir 8 nomes por linha
             let listaFormatada = '';
-            for (let i = 0; i < nomesProcessados.length; i += 6) {
-                listaFormatada += nomesProcessados.slice(i, i + 6).join(', ') + '\n';
+            for (let i = 0; i < nomesProcessados.length; i += 8) {
+                listaFormatada += nomesProcessados.slice(i, i + 8).join(', ') + '\n';
             }
             document.getElementById('inputNomesProcessados').value = listaFormatada.trim();
+        }
+
+        function copiarNomes() {
+            const textarea = document.getElementById('inputNomesProcessados');
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                document.getElementById('status-copy').textContent = 'Copiado com sucesso!';
+                setTimeout(() => document.getElementById('status-copy').textContent = '', 2000);
+            }).catch(err => {
+                document.getElementById('status-copy').textContent = 'Erro ao copiar.';
+            });
+        }
+
+        function colarNomes() {
+            const textarea = document.getElementById('inputNomesFinal');
+            navigator.clipboard.readText().then(text => {
+                textarea.value = text;
+                document.getElementById('status-paste').textContent = 'Colado com sucesso!';
+                setTimeout(() => document.getElementById('status-paste').textContent = '', 2000);
+            }).catch(err => {
+                document.getElementById('status-paste').textContent = 'Erro ao colar.';
+            });
         }
 
         function gerarCrachas() {
