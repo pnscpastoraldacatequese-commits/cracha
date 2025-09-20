@@ -150,16 +150,31 @@
             const nomesInputRaw = document.getElementById('inputNomesRaw').value;
             let nomes = nomesInputRaw.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
             
-            // Processa a lista para resolver nomes duplicados
-            const nomeUnico = {};
+            // Contagem para verificar duplicatas
+            const contagemPrimeiroNome = {};
+            nomes.forEach(nomeCompleto => {
+                const partes = nomeCompleto.split(' ');
+                const primeiroNome = partes[0].toUpperCase();
+                contagemPrimeiroNome[primeiroNome] = (contagemPrimeiroNome[primeiroNome] || 0) + 1;
+            });
+            
             const nomesProcessados = nomes.map(nomeCompleto => {
                 const partes = nomeCompleto.split(' ');
                 const primeiroNome = partes[0];
-                if (nomeUnico[primeiroNome]) {
-                    // Nome já existe, adiciona o segundo nome
+                const sobrenome = partes.slice(1).join(' ');
+
+                // Caso especial para preposições
+                if (partes.length > 1) {
+                    const segundaParte = partes[1].toLowerCase();
+                    if (segundaParte === 'de' || segundaParte === 'do' || segundaParte === 'da') {
+                        return `${primeiroNome} ${partes[1]} ${partes[2] || ''}`.trim();
+                    }
+                }
+
+                // Lógica principal para nomes duplicados (2 ou mais)
+                if (contagemPrimeiroNome[primeiroNome.toUpperCase()] > 1) {
                     return `${primeiroNome} ${partes[1] || ''}`.trim();
                 } else {
-                    nomeUnico[primeiroNome] = true;
                     return primeiroNome;
                 }
             });
