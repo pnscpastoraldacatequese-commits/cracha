@@ -83,11 +83,11 @@
             padding: 5px 10px;
         }
         .logo-paroquia, .logo-nova {
-            height: 50px;
+            height: 40px;
             width: auto;
         }
         .nome {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: bold;
             margin-top: 15px;
             flex-grow: 1;
@@ -129,8 +129,8 @@
 </head>
 <body>
     <div class="controls">
-        <label for="nomesInput">Digite os nomes - MÁXIMO 6 (separados por vírgula):</label>
-        <textarea id="nomesInput" placeholder="Ex: Nome1, Nome2, Nome3"></textarea>
+        <label for="nomesInput">Cole a lista completa de nomes aqui (um por linha ou separados por vírgula):</label>
+        <textarea id="nomesInput" placeholder="Ex: Nome Sobrenome, Nome2, Nome3 Sobrenome"></textarea>
         <div class="btn-container">
             <button class="btn" onclick="gerarCrachas()">Gerar Crachás</button>
             <button class="btn print-btn" onclick="window.print()">Imprimir Crachás</button>
@@ -144,16 +144,30 @@
     <script>
         function gerarCrachas() {
             const nomesInput = document.getElementById('nomesInput').value;
-            const nomes = nomesInput.split(',').map(nome => nome.trim().toUpperCase()).filter(nome => nome.length > 0);
+            let nomes = nomesInput.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
             
+            // Processa a lista para resolver nomes duplicados
+            const nomeUnico = {};
+            const nomesProcessados = nomes.map(nomeCompleto => {
+                const partes = nomeCompleto.split(' ');
+                const primeiroNome = partes[0];
+                if (nomeUnico[primeiroNome]) {
+                    // Nome já existe, adiciona o segundo nome
+                    return `${primeiroNome} ${partes[1] || ''}`.trim();
+                } else {
+                    nomeUnico[primeiroNome] = true;
+                    return primeiroNome;
+                }
+            });
+
             const crachasContainer = document.querySelector('.container');
             crachasContainer.innerHTML = ''; // Limpa os crachás existentes
 
-            if (nomes.length === 0) {
+            if (nomesProcessados.length === 0) {
                 return;
             }
 
-            nomes.forEach(nome => {
+            nomesProcessados.forEach(nome => {
                 const cracha = document.createElement('div');
                 cracha.className = 'cracha';
 
@@ -177,7 +191,7 @@
                 
                 const nomeH1 = document.createElement('h1');
                 nomeH1.className = 'nome';
-                nomeH1.textContent = nome;
+                nomeH1.textContent = nome.toUpperCase();
 
                 cracha.appendChild(imagesDiv);
                 cracha.appendChild(nomeH1);
