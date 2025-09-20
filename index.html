@@ -26,7 +26,6 @@
         .controls textarea {
             width: 80vw;
             max-width: 600px;
-            height: 80px;
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #ccc;
@@ -129,8 +128,13 @@
 </head>
 <body>
     <div class="controls">
-        <label for="nomesInput">Cole a lista completa de nomes aqui (um por linha ou separados por vírgula):</label>
-        <textarea id="nomesInput" placeholder="Ex: Nome Sobrenome, Nome2, Nome3 Sobrenome"></textarea>
+        <label for="inputNomesRaw">1. Cole a lista completa de nomes:</label>
+        <textarea id="inputNomesRaw" placeholder="Ex: Nome Sobrenome, Nome2, Nome3 Sobrenome" rows="5"></textarea>
+        <button class="btn" onclick="processarNomes()">Processar Nomes</button>
+
+        <label for="inputNomesProcessados">2. Edite e organize a lista final (6 por linha):</label>
+        <textarea id="inputNomesProcessados" placeholder="Nomes processados aparecerão aqui..." rows="10"></textarea>
+
         <div class="btn-container">
             <button class="btn" onclick="gerarCrachas()">Gerar Crachás</button>
             <button class="btn print-btn" onclick="window.print()">Imprimir Crachás</button>
@@ -142,9 +146,9 @@
     </div>
 
     <script>
-        function gerarCrachas() {
-            const nomesInput = document.getElementById('nomesInput').value;
-            let nomes = nomesInput.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
+        function processarNomes() {
+            const nomesInputRaw = document.getElementById('inputNomesRaw').value;
+            let nomes = nomesInputRaw.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
             
             // Processa a lista para resolver nomes duplicados
             const nomeUnico = {};
@@ -160,14 +164,26 @@
                 }
             });
 
+            // Formata a lista para exibir 6 nomes por linha
+            let listaFormatada = '';
+            for (let i = 0; i < nomesProcessados.length; i += 6) {
+                listaFormatada += nomesProcessados.slice(i, i + 6).join(', ') + '\n';
+            }
+            document.getElementById('inputNomesProcessados').value = listaFormatada.trim();
+        }
+
+        function gerarCrachas() {
+            const nomesInputProcessados = document.getElementById('inputNomesProcessados').value;
+            const nomes = nomesInputProcessados.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
+            
             const crachasContainer = document.querySelector('.container');
             crachasContainer.innerHTML = ''; // Limpa os crachás existentes
 
-            if (nomesProcessados.length === 0) {
+            if (nomes.length === 0) {
                 return;
             }
 
-            nomesProcessados.forEach(nome => {
+            nomes.forEach(nome => {
                 const cracha = document.createElement('div');
                 cracha.className = 'cracha';
 
