@@ -132,8 +132,11 @@
         <textarea id="inputNomesRaw" placeholder="Ex: Nome Sobrenome, Nome2, Nome3 Sobrenome" rows="5"></textarea>
         <button class="btn" onclick="processarNomes()">Processar Nomes</button>
 
-        <label for="inputNomesProcessados">2. Edite e organize a lista final (6 por linha):</label>
-        <textarea id="inputNomesProcessados" placeholder="Nomes processados aparecerão aqui..." rows="10"></textarea>
+        <label for="inputNomesProcessados">2. Lista processada (6 por linha):</label>
+        <textarea id="inputNomesProcessados" placeholder="Nomes processados aparecerão aqui..." rows="10" readonly></textarea>
+
+        <label for="inputNomesFinal">3. Copie a lista acima, edite se necessário e cole aqui:</label>
+        <textarea id="inputNomesFinal" placeholder="Nomes finais para geração..." rows="10"></textarea>
 
         <div class="btn-container">
             <button class="btn" onclick="gerarCrachas()">Gerar Crachás</button>
@@ -161,18 +164,16 @@
             const nomesProcessados = nomes.map(nomeCompleto => {
                 const partes = nomeCompleto.split(' ');
                 const primeiroNome = partes[0];
-                const sobrenome = partes.slice(1).join(' ');
-
-                // Caso especial para preposições
-                if (partes.length > 1) {
-                    const segundaParte = partes[1].toLowerCase();
-                    if (segundaParte === 'de' || segundaParte === 'do' || segundaParte === 'da') {
-                        return `${primeiroNome} ${partes[1]} ${partes[2] || ''}`.trim();
-                    }
-                }
-
+                
                 // Lógica principal para nomes duplicados (2 ou mais)
                 if (contagemPrimeiroNome[primeiroNome.toUpperCase()] > 1) {
+                    // Trata o caso de preposições apenas se o nome for duplicado
+                    if (partes.length > 1) {
+                        const segundaParte = partes[1].toLowerCase();
+                        if (segundaParte === 'de' || segundaParte === 'do' || segundaParte === 'da' || segundaParte === 'dos' || segundaParte === 'das') {
+                            return `${primeiroNome} ${partes[1]} ${partes[2] || ''}`.trim();
+                        }
+                    }
                     return `${primeiroNome} ${partes[1] || ''}`.trim();
                 } else {
                     return primeiroNome;
@@ -188,8 +189,8 @@
         }
 
         function gerarCrachas() {
-            const nomesInputProcessados = document.getElementById('inputNomesProcessados').value;
-            const nomes = nomesInputProcessados.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
+            const nomesInputFinal = document.getElementById('inputNomesFinal').value;
+            const nomes = nomesInputFinal.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
             
             const crachasContainer = document.querySelector('.container');
             crachasContainer.innerHTML = ''; // Limpa os crachás existentes
