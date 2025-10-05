@@ -94,11 +94,11 @@
             padding: 5px 10px;
         }
         .logo-paroquia, .logo-nova {
-            height: 40px;
+            height: 50px; /* Aumentado para 50px */
             width: auto;
         }
         .nome {
-            font-size: 20px;
+            font-size: 32px; /* Aumentado para 32px */
             font-weight: bold;
             margin-top: 15px;
             flex-grow: 1;
@@ -135,6 +135,7 @@
                 margin: 0;
                 border-radius: 0;
             }
+            /* Garante quebra de página a cada 8 crachás */
             .cracha:nth-child(8n+9) {
                 page-break-before: always;
             }
@@ -168,32 +169,66 @@
     </div>
 
     <script>
+        function obterNomeIdentificador(partes, indiceInicial = 0) {
+            let nomeIdentificador = partes[indiceInicial];
+            if (!nomeIdentificador) return '';
+
+            // Verifica se a próxima parte é uma preposição e inclui a próxima parte se for o caso
+            const preposicoes = ['de', 'do', 'da', 'dos', 'das'];
+            if (partes.length > indiceInicial + 1) {
+                const proximaParte = partes[indiceInicial + 1].toLowerCase();
+                if (preposicoes.includes(proximaParte)) {
+                    // Inclui a preposição e a parte seguinte
+                    return `${nomeIdentificador} ${partes[indiceInicial + 1]} ${partes[indiceInicial + 2] || ''}`.trim();
+                }
+            }
+            return nomeIdentificador;
+        }
+
         function processarNomes() {
             const nomesInputRaw = document.getElementById('inputNomesRaw').value;
+            // Separa por vírgula ou nova linha
             let nomes = nomesInputRaw.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
             
-            // Contagem para verificar duplicatas
+            // 1. Contagem para verificar duplicatas (apenas o primeiro nome)
             const contagemPrimeiroNome = {};
             nomes.forEach(nomeCompleto => {
-                const partes = nomeCompleto.split(' ');
-                const primeiroNome = partes[0].toUpperCase();
+                const primeiroNome = nomeCompleto.split(' ')[0].toUpperCase();
                 contagemPrimeiroNome[primeiroNome] = (contagemPrimeiroNome[primeiroNome] || 0) + 1;
+            });
+
+            // 2. Contagem para verificar duplicatas de nomes compostos (dois primeiros nomes)
+            const contagemNomeComposto = {};
+            nomes.forEach(nomeCompleto => {
+                const partes = nomeCompleto.split(' ');
+                if (partes.length >= 2) {
+                    const nomeComposto = `${partes[0]} ${partes[1]}`.toUpperCase();
+                    contagemNomeComposto[nomeComposto] = (contagemNomeComposto[nomeComposto] || 0) + 1;
+                }
             });
             
             const nomesProcessados = nomes.map(nomeCompleto => {
                 const partes = nomeCompleto.split(' ');
                 const primeiroNome = partes[0];
                 
-                // Lógica principal para nomes duplicados (2 ou mais)
-                if (contagemPrimeiroNome[primeiroNome.toUpperCase()] > 1) {
-                    // Trata o caso de preposições apenas se o nome for duplicado
-                    if (partes.length > 1) {
-                        const segundaParte = partes[1].toLowerCase();
-                        if (segundaParte === 'de' || segundaParte === 'do' || segundaParte === 'da' || segundaParte === 'dos' || segundaParte === 'das') {
-                            return `${primeiroNome} ${partes[1]} ${partes[2] || ''}`.trim();
+                // Lógica para nomes compostos duplicados (ex: Maria Eduarda)
+                if (partes.length >= 2) {
+                    const nomeComposto = `${partes[0]} ${partes[1]}`.toUpperCase();
+                    
+                    if (contagemNomeComposto[nomeComposto] > 1) {
+                        // Se o composto for duplicado, incluir o terceiro nome (e lidar com preposições)
+                        const terceiroNome = obterNomeIdentificador(partes, 2); 
+                        if (terceiroNome) {
+                            return `${primeiroNome} ${partes[1]} ${terceiroNome}`.trim();
                         }
                     }
-                    return `${primeiroNome} ${partes[1] || ''}`.trim();
+                }
+                
+                // Lógica original para duplicatas de primeiro nome (se o composto não for duplicado)
+                if (contagemPrimeiroNome[primeiroNome.toUpperCase()] > 1) {
+                    // Inclui o sobrenome (e lida com preposições)
+                    const sobrenome = obterNomeIdentificador(partes, 1);
+                    return `${primeiroNome} ${sobrenome}`.trim();
                 } else {
                     return primeiroNome;
                 }
@@ -209,23 +244,22 @@
 
         function copiarNomes() {
             const textarea = document.getElementById('inputNomesProcessados');
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                document.getElementById('status-copy').textContent = 'Copiado com sucesso!';
-                setTimeout(() => document.getElementById('status-copy').textContent = '', 2000);
-            }).catch(err => {
-                document.getElementById('status-copy').textContent = 'Erro ao copiar.';
-            });
+            // Usando execCommand para maior compatibilidade em iFrames
+            textarea.select();
+            document.execCommand('copy');
+
+            document.getElementById('status-copy').textContent = 'Copiado com sucesso!';
+            setTimeout(() => document.getElementById('status-copy').textContent = '', 2000);
         }
 
         function colarNomes() {
+            // Como o acesso direto ao clipboard (navigator.clipboard.readText) pode ser bloqueado
+            // em iFrames, a melhor prática é instruir o usuário a usar CTRL+V ou Comando+V
             const textarea = document.getElementById('inputNomesFinal');
-            navigator.clipboard.readText().then(text => {
-                textarea.value = text;
-                document.getElementById('status-paste').textContent = 'Colado com sucesso!';
-                setTimeout(() => document.getElementById('status-paste').textContent = '', 2000);
-            }).catch(err => {
-                document.getElementById('status-paste').textContent = 'Erro ao colar.';
-            });
+            textarea.focus();
+
+            document.getElementById('status-paste').textContent = 'Use CTRL+V (ou Cmd+V) para colar no campo acima.';
+            setTimeout(() => document.getElementById('status-paste').textContent = '', 3000);
         }
 
         function gerarCrachas() {
