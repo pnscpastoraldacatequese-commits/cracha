@@ -169,20 +169,52 @@
     </div>
 
     <script>
+        // Lista de preposições para tratamento de nome composto
+        const PREPOSICOES = ['de', 'do', 'da', 'dos', 'das'];
+
+        /**
+         * Retorna a parte de um nome (sobrenome, terceiro nome, etc.) lidando com preposições.
+         * @param {string[]} partes Array de partes do nome completo.
+         * @param {number} indiceInicial Índice da parte do nome a ser considerada.
+         * @returns {string} O nome identificado, incluindo preposição + próximo nome, se aplicável.
+         */
         function obterNomeIdentificador(partes, indiceInicial = 0) {
             let nomeIdentificador = partes[indiceInicial];
             if (!nomeIdentificador) return '';
 
-            // Verifica se a próxima parte é uma preposição e inclui a próxima parte se for o caso
-            const preposicoes = ['de', 'do', 'da', 'dos', 'das'];
+            // Se o próximo termo for uma preposição, inclui a preposição e o termo seguinte.
             if (partes.length > indiceInicial + 1) {
                 const proximaParte = partes[indiceInicial + 1].toLowerCase();
-                if (preposicoes.includes(proximaParte)) {
-                    // Inclui a preposição e a parte seguinte
+                if (PREPOSICOES.includes(proximaParte)) {
+                    // Retorna 'Nome Preposição Sobrenome' (ou 'Primeiro Preposição Segundo', se indiceInicial=0)
                     return `${nomeIdentificador} ${partes[indiceInicial + 1]} ${partes[indiceInicial + 2] || ''}`.trim();
                 }
             }
             return nomeIdentificador;
+        }
+
+        /**
+         * Gera uma chave de comparação que inclui o primeiro nome e o segundo nome (lidando com preposições).
+         * Ex: "Maria de Lourdes" -> "MARIA DE LOURDES"
+         * Ex: "João Silva" -> "JOAO SILVA"
+         * Ex: "Ana" -> "ANA"
+         * @param {string} nomeCompleto O nome completo.
+         * @returns {string} A chave de comparação em letras maiúsculas.
+         */
+        function gerarChaveComposta(nomeCompleto) {
+            const partes = nomeCompleto.split(' ');
+            const primeiraParte = partes[0] ? partes[0].toUpperCase() : '';
+            
+            if (partes.length > 1) {
+                const segundaParte = partes[1].toLowerCase();
+                // Se a segunda parte é uma preposição, inclua a terceira parte na chave (se existir)
+                if (PREPOSICOES.includes(segundaParte) && partes.length > 2) {
+                    return `${primeiraParte} ${segundaParte} ${partes[2]}`.toUpperCase();
+                }
+                // Senão, inclua apenas o primeiro e segundo nome
+                return `${primeiraParte} ${partes[1]}`.toUpperCase();
+            }
+            return primeiraParte;
         }
 
         function processarNomes() {
@@ -190,48 +222,49 @@
             // Separa por vírgula ou nova linha
             let nomes = nomesInputRaw.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
             
-            // 1. Contagem para verificar duplicatas (apenas o primeiro nome)
+            // 1. Contagem para verificar duplicatas pelo PRIMEIRO NOME (chave mais simples)
             const contagemPrimeiroNome = {};
             nomes.forEach(nomeCompleto => {
                 const primeiroNome = nomeCompleto.split(' ')[0].toUpperCase();
                 contagemPrimeiroNome[primeiroNome] = (contagemPrimeiroNome[primeiroNome] || 0) + 1;
             });
 
-            // 2. Contagem para verificar duplicatas de nomes compostos (dois primeiros nomes)
+            // 2. Contagem para verificar duplicatas pelo NOME COMPOSTO (chave mais complexa: NOME1 + NOME2/PREPOSICAO+NOME3)
             const contagemNomeComposto = {};
             nomes.forEach(nomeCompleto => {
-                const partes = nomeCompleto.split(' ');
-                if (partes.length >= 2) {
-                    const nomeComposto = `${partes[0]} ${partes[1]}`.toUpperCase();
-                    contagemNomeComposto[nomeComposto] = (contagemNomeComposto[nomeComposto] || 0) + 1;
-                }
+                const chaveComposta = gerarChaveComposta(nomeCompleto);
+                contagemNomeComposto[chaveComposta] = (contagemNomeComposto[chaveComposta] || 0) + 1;
             });
             
             const nomesProcessados = nomes.map(nomeCompleto => {
                 const partes = nomeCompleto.split(' ');
                 const primeiroNome = partes[0];
+                const chaveComposta = gerarChaveComposta(nomeCompleto);
                 
-                // Lógica para nomes compostos duplicados (ex: Maria Eduarda)
-                if (partes.length >= 2) {
-                    const nomeComposto = `${partes[0]} ${partes[1]}`.toUpperCase();
+                // Lógica principal: Duplicação detectada pela chave composta mais complexa
+                if (contagemNomeComposto[chaveComposta] > 1) {
+                    // O nome composto está duplicado. Precisamos de mais nomes para diferenciar.
                     
-                    if (contagemNomeComposto[nomeComposto] > 1) {
-                        // Se o composto for duplicado, incluir o terceiro nome (e lidar com preposições)
-                        const terceiroNome = obterNomeIdentificador(partes, 2); 
-                        if (terceiroNome) {
-                            return `${primeiroNome} ${partes[1]} ${terceiroNome}`.trim();
-                        }
-                    }
+                    // Ex: JANICE CORDEIRO DOS SANTOS / JANICE CORDEIRO DA SILVA
+                    // A chave é "JANICE CORDEIRO", que tem contagem > 1.
+                    // Vamos tentar incluir o sobrenome completo (a partir da segunda parte do nome completo).
+                    
+                    // Sobrenome completo (parte do nome a ser adicionada para diferenciar)
+                    // Ex: CORDEIRO DOS SANTOS / CORDEIRO DA SILVA
+                    const sobrenomeCompleto = partes.slice(1).join(' ');
+                    return `${primeiroNome} ${sobrenomeCompleto}`.trim();
                 }
                 
-                // Lógica original para duplicatas de primeiro nome (se o composto não for duplicado)
+                // Lógica de fallback: Duplicação detectada apenas pelo primeiro nome (menos comum, mas necessário)
                 if (contagemPrimeiroNome[primeiroNome.toUpperCase()] > 1) {
-                    // Inclui o sobrenome (e lida com preposições)
-                    const sobrenome = obterNomeIdentificador(partes, 1);
-                    return `${primeiroNome} ${sobrenome}`.trim();
-                } else {
-                    return primeiroNome;
+                    // Se apenas o primeiro nome está duplicado, mas a chave composta não,
+                    // precisamos incluir o segundo nome para diferenciar.
+                    const segundoNome = obterNomeIdentificador(partes, 1);
+                    return `${primeiroNome} ${segundoNome}`.trim();
                 }
+                
+                // Se não há duplicação, retorna apenas o primeiro nome
+                return primeiroNome;
             });
 
             // Formata a lista para exibir 8 nomes por linha
