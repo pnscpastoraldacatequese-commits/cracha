@@ -243,16 +243,8 @@
                 
                 // Lógica principal: Duplicação detectada pela chave composta mais complexa
                 if (contagemNomeComposto[chaveComposta] > 1) {
-                    // O nome composto está duplicado. Precisamos de mais nomes para diferenciar.
-                    
-                    // Ex: JANICE CORDEIRO DOS SANTOS / JANICE CORDEIRO DA SILVA
-                    // A chave é "JANICE CORDEIRO", que tem contagem > 1.
-                    // Vamos tentar incluir o sobrenome completo (a partir da segunda parte do nome completo).
-                    
-                    // Sobrenome completo (parte do nome a ser adicionada para diferenciar)
-                    // Ex: CORDEIRO DOS SANTOS / CORDEIRO DA SILVA
-                    const sobrenomeCompleto = partes.slice(1).join(' ');
-                    return `${primeiroNome} ${sobrenomeCompleto}`.trim();
+                    // O nome composto está duplicado. Precisamos do nome completo.
+                    return nomeCompleto; // Retorna o nome completo para diferenciar
                 }
                 
                 // Lógica de fallback: Duplicação detectada apenas pelo primeiro nome (menos comum, mas necessário)
@@ -286,13 +278,19 @@
         }
 
         function colarNomes() {
-            // Como o acesso direto ao clipboard (navigator.clipboard.readText) pode ser bloqueado
-            // em iFrames, a melhor prática é instruir o usuário a usar CTRL+V ou Comando+V
             const textarea = document.getElementById('inputNomesFinal');
             textarea.focus();
 
-            document.getElementById('status-paste').textContent = 'Use CTRL+V (ou Cmd+V) para colar no campo acima.';
-            setTimeout(() => document.getElementById('status-paste').textContent = '', 3000);
+            // Tenta usar o comando paste, que é a forma mais compatível com iFrames,
+            // mas que pode exigir uma interação manual do usuário (Ctrl+V/Cmd+V).
+            const success = document.execCommand('paste');
+            if (success) {
+                document.getElementById('status-paste').textContent = 'Conteúdo colado com sucesso!';
+                setTimeout(() => document.getElementById('status-paste').textContent = '', 2000);
+            } else {
+                document.getElementById('status-paste').textContent = 'Use CTRL+V (ou Cmd+V) para colar no campo acima.';
+                setTimeout(() => document.getElementById('status-paste').textContent = '', 3000);
+            }
         }
 
         function gerarCrachas() {
