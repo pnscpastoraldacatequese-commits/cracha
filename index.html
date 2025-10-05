@@ -182,58 +182,55 @@
         function determineProcessedName(name, allNames) {
             const originalNameParts = name.split(' ');
             
-            // 1. Checa a contagem do primeiro nome (case-insensitive)
-            const firstNameCount = allNames.filter(n => n.split(' ')[0].toUpperCase() === originalNameParts[0].toUpperCase()).length;
+            // 1. Checa se o primeiro nome é único.
+            const firstName = originalNameParts[0];
+            const firstNameCount = allNames.filter(n => n.split(' ')[0].toUpperCase() === firstName.toUpperCase()).length;
 
             if (firstNameCount === 1 || originalNameParts.length === 1) {
-                return originalNameParts[0]; // Retorna apenas o primeiro nome se não houver duplicação ou se for nome simples
+                return firstName; // Retorna apenas o primeiro nome se não for duplicado ou se for nome simples
             }
 
             // 2. Duplicação detectada: Encontra o segmento mais curto que é único
-            let currentNameParts = [originalNameParts[0]];
-            let i = 1; // Começa a partir do segundo nome (índice 1)
+            let currentNameParts = [firstName];
+            let i = 1; // Índice da próxima parte a ser potencialmente adicionada
 
             while (i < originalNameParts.length) {
-                // Monta o segmento atual para checagem (ex: "ANA DE SOUZA" -> "ANA DE SOUZA")
-                const currentSegment = currentNameParts.join(' ');
                 
-                let isUnique = true;
-                
-                // Checa se o segmento atual é prefixo de algum *outro* nome
-                for (const otherName of allNames) {
-                    if (otherName.toUpperCase() === name.toUpperCase()) continue; // Pula o próprio nome
-
-                    // Checa se o outro nome começa com o segmento atual
-                    if (otherName.toUpperCase().startsWith(currentSegment.toUpperCase())) {
-                        isUnique = false;
-                        break;
-                    }
-                }
-
-                if (isUnique) {
-                    // O segmento atual já é único e suficiente para diferenciar
-                    return currentSegment;
-                }
-
-                // O segmento não é único, precisamos adicionar o próximo nome/sobrenome
+                // **PASSO A: Estende o segmento do nome**
                 let nextPart = originalNameParts[i];
                 currentNameParts.push(nextPart);
-                i++; // Avança para a próxima parte
+                i++; 
 
-                // Se a parte adicionada for uma preposição, DENTRO DA DUPLICAÇÃO, 
-                // precisamos incluir o nome seguinte para manter a coesão.
+                // **PASSO B: Trata Preposições:** Se a parte adicionada for uma preposição,
+                // precisamos incluir o nome seguinte para manter a integridade do nome composto.
                 if (PREPOSICOES.includes(nextPart.toLowerCase()) && i < originalNameParts.length) {
                     currentNameParts.push(originalNameParts[i]);
                     i++; // Avança novamente
                 }
 
-                // Se chegamos ao fim do nome (last iteration), e ainda não é único, retornamos o nome completo
-                if (i === originalNameParts.length) {
-                    return name;
+                const currentSegment = currentNameParts.join(' ');
+                
+                // **PASSO C: Verifica a Unicidade**
+                let isUniquePrefix = true;
+                
+                // Um segmento é único se ele NÃO for prefixo de *qualquer outro nome*.
+                for (const otherName of allNames) {
+                    if (otherName.toUpperCase() === name.toUpperCase()) continue; // Pula o próprio nome
+
+                    // Checa se o outro nome começa com o segmento atual
+                    if (otherName.toUpperCase().startsWith(currentSegment.toUpperCase())) {
+                        isUniquePrefix = false;
+                        break;
+                    }
+                }
+                
+                if (isUniquePrefix) {
+                    // O segmento atual é o mais curto necessário para diferenciar.
+                    return currentSegment;
                 }
             }
             
-            // Caso de fallback extremo, deve retornar o nome completo
+            // Se o loop terminar, o nome completo é o único segmento único.
             return name;
         }
 
