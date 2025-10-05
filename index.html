@@ -173,27 +173,68 @@
         const PREPOSICOES = ['de', 'do', 'da', 'dos', 'das'];
 
         /**
-         * Gera uma chave de comparação que inclui o primeiro nome e o segundo nome (lidando com preposições).
-         * Ex: "Maria de Lourdes" -> "MARIA DE LOURDES"
-         * Ex: "João Silva" -> "JOAO SILVA"
-         * Ex: "Ana" -> "ANA"
-         * @param {string} nomeCompleto O nome completo.
-         * @returns {string} A chave de comparação em letras maiúsculas.
+         * Determina a forma mais curta e única do nome necessário para diferenciá-lo.
+         * Se for necessária diferenciação, garante que preposições e o nome seguinte sejam incluídos juntos.
+         * @param {string} name O nome completo a ser processado.
+         * @param {string[]} allNames A lista de todos os nomes para comparação de duplicação.
+         * @returns {string} O nome processado (apenas o primeiro nome ou a forma expandida).
          */
-        function gerarChaveComposta(nomeCompleto) {
-            const partes = nomeCompleto.split(' ');
-            const primeiraParte = partes[0] ? partes[0].toUpperCase() : '';
+        function determineProcessedName(name, allNames) {
+            const originalNameParts = name.split(' ');
             
-            if (partes.length > 1) {
-                const segundaParte = partes[1].toLowerCase();
-                // Se a segunda parte é uma preposição, inclua a terceira parte na chave (se existir)
-                if (PREPOSICOES.includes(segundaParte) && partes.length > 2) {
-                    return `${primeiraParte} ${segundaParte} ${partes[2]}`.toUpperCase();
-                }
-                // Senão, inclua apenas o primeiro e segundo nome
-                return `${primeiraParte} ${partes[1]}`.toUpperCase();
+            // 1. Checa a contagem do primeiro nome (case-insensitive)
+            const firstNameCount = allNames.filter(n => n.split(' ')[0].toUpperCase() === originalNameParts[0].toUpperCase()).length;
+
+            if (firstNameCount === 1 || originalNameParts.length === 1) {
+                return originalNameParts[0]; // Retorna apenas o primeiro nome se não houver duplicação ou se for nome simples
             }
-            return primeiraParte;
+
+            // 2. Duplicação detectada: Encontra o segmento mais curto que é único
+            let currentNameParts = [originalNameParts[0]];
+            let i = 1; // Começa a partir do segundo nome (índice 1)
+
+            while (i < originalNameParts.length) {
+                // Monta o segmento atual para checagem (ex: "ANA DE SOUZA" -> "ANA DE SOUZA")
+                const currentSegment = currentNameParts.join(' ');
+                
+                let isUnique = true;
+                
+                // Checa se o segmento atual é prefixo de algum *outro* nome
+                for (const otherName of allNames) {
+                    if (otherName.toUpperCase() === name.toUpperCase()) continue; // Pula o próprio nome
+
+                    // Checa se o outro nome começa com o segmento atual
+                    if (otherName.toUpperCase().startsWith(currentSegment.toUpperCase())) {
+                        isUnique = false;
+                        break;
+                    }
+                }
+
+                if (isUnique) {
+                    // O segmento atual já é único e suficiente para diferenciar
+                    return currentSegment;
+                }
+
+                // O segmento não é único, precisamos adicionar o próximo nome/sobrenome
+                let nextPart = originalNameParts[i];
+                currentNameParts.push(nextPart);
+                i++; // Avança para a próxima parte
+
+                // Se a parte adicionada for uma preposição, DENTRO DA DUPLICAÇÃO, 
+                // precisamos incluir o nome seguinte para manter a coesão.
+                if (PREPOSICOES.includes(nextPart.toLowerCase()) && i < originalNameParts.length) {
+                    currentNameParts.push(originalNameParts[i]);
+                    i++; // Avança novamente
+                }
+
+                // Se chegamos ao fim do nome (last iteration), e ainda não é único, retornamos o nome completo
+                if (i === originalNameParts.length) {
+                    return name;
+                }
+            }
+            
+            // Caso de fallback extremo, deve retornar o nome completo
+            return name;
         }
 
         function processarNomes() {
@@ -201,42 +242,8 @@
             // Separa por vírgula ou nova linha
             let nomes = nomesInputRaw.split(/[,\n]/).map(nome => nome.trim()).filter(nome => nome.length > 0);
             
-            // 1. Contagem para verificar duplicatas pelo PRIMEIRO NOME (chave mais simples)
-            const contagemPrimeiroNome = {};
-            nomes.forEach(nomeCompleto => {
-                const primeiroNome = nomeCompleto.split(' ')[0].toUpperCase();
-                contagemPrimeiroNome[primeiroNome] = (contagemPrimeiroNome[primeiroNome] || 0) + 1;
-            });
-
-            // 2. Contagem para verificar duplicatas pelo NOME COMPOSTO (chave mais complexa: NOME1 + NOME2/PREPOSICAO+NOME3)
-            const contagemNomeComposto = {};
-            nomes.forEach(nomeCompleto => {
-                const chaveComposta = gerarChaveComposta(nomeCompleto);
-                contagemNomeComposto[chaveComposta] = (contagemNomeComposto[chaveComposta] || 0) + 1;
-            });
-            
-            const nomesProcessados = nomes.map(nomeCompleto => {
-                const partes = nomeCompleto.split(' ');
-                const primeiroNome = partes[0];
-                const chaveComposta = gerarChaveComposta(nomeCompleto);
-                
-                // Lógica principal: Duplicação detectada pela chave composta mais complexa
-                if (contagemNomeComposto[chaveComposta] > 1) {
-                    // O nome composto está duplicado. Precisamos do nome completo para diferenciar.
-                    // Ex: JANICE CORDEIRO DOS SANTOS vs JANICE CORDEIRO DA SILVA
-                    return nomeCompleto; 
-                }
-                
-                // Lógica de fallback: Duplicação detectada apenas pelo primeiro nome (menos comum, mas necessário)
-                if (contagemPrimeiroNome[primeiroNome.toUpperCase()] > 1) {
-                    // SE O PRIMEIRO NOME ESTÁ DUPLICADO, USAMOS O NOME COMPLETO PARA GARANTIR A DIFERENCIAÇÃO.
-                    // Isso corrige o problema com ANA DE SOUZA / ANA DA SILVA.
-                    return nomeCompleto; 
-                }
-                
-                // Se não há duplicação, retorna apenas o primeiro nome
-                return primeiroNome;
-            });
+            // Aplica a lógica de unicidade em todos os nomes
+            const nomesProcessados = nomes.map(nome => determineProcessedName(nome, nomes));
 
             // Formata a lista para exibir 8 nomes por linha
             let listaFormatada = '';
